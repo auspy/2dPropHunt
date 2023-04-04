@@ -27,7 +27,7 @@ namespace Spriter2UnityDX {
 
 		public int SortingLayerID {
 			get { return (first != null) ? first.sortingLayerID : 0; }
-			set { DoForAll (x => x.sortingLayerID = value); }
+			set { DoForAll (x => x.sortingLayerID = value+1); }
 		}
 
 		public string SortingLayerName {

@@ -9,13 +9,12 @@ public class Hunter : Character
     bool isAttacking = false;
 
     // char animation states
-    public int stateAttackSlash = 6;
-    public int stateAttckKick = 7;
+    public const int stateAttackSlash = 6;
+    public const int stateAttckKick = 7;
 
     // FUNCTIONS
-    public Hunter()
-    {
-    }
+    // public Hunter() { }
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -24,43 +23,45 @@ public class Hunter : Character
 
     private void Update()
     {
-        moveCharacter();
-        CharacterAnimations();
-moveHunter();
-        AnimateAttackSlash();
-        AnimateSlide();
+        if (!isLocalPlayer)
+            return;
+        cmdMoveCharacter();
+        moveHunter();
+        AnimateBasicCharacterMovs();
+        AnimateHunterCharacterMovs();
+        CmdCharacterAnimations(currentAnimateState);
     }
 
+    // MOVEMENTS
     public void moveHunter()
     {
+        if (!isLocalPlayer)
+            return;
         if (Input.GetKeyDown(KeyCode.Z))
         {
             print("attacking");
             isAttacking = true;
         }
-        else if (Input.GetKey(KeyCode.X) && isMoving && !isSliding)
+        else if (Input.GetKeyDown(KeyCode.X) && isMoving && !isSliding)
         {
-            print("sliding");
+            print("start sliding");
             isSliding = true;
-            rg.velocity =new Vector2(movX * (runSpeed), movY) ;
+            slideSecs = maxSlideSecs;
+            slideX = Input.GetAxisRaw("Horizontal");
+            slideY = Input.GetAxisRaw("Vertical");
         }
         else
         {
             isAttacking = false;
-            isSliding = false;
         }
-        
     }
 
+    // ANIMATIONS
     void AnimateAttackSlash()
     {
         if (isAttacking)
         {
-            // attack animate
-            SetAnimation(stateAttackSlash);
-            //yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
-            //yield return null;
-            //print("can attack in "+animator.GetCurrentAnimatorStateInfo(0).length);
+            currentAnimateState = stateAttackSlash;
         }
     }
 
@@ -68,8 +69,27 @@ moveHunter();
     {
         if (isSliding)
         {
-            SetAnimation(stateSlide);
+            rg.velocity = new Vector2(slideX, slideY) * runSpeed;
+            // print(slideX);
+            // print(slideSecs);
+            // SetAnimation(stateSlide);
+            currentAnimateState = stateSlide;
+
+            // Decrement slide timer
+            slideSecs -= Time.deltaTime;
+
+            if (slideSecs <= 0.0f)
+            {
+                isSliding = false;
+                // Enable jumping and friction again
+                rg.velocity = new Vector2(0.0f, 0.0f);
+            }
         }
     }
 
+    void AnimateHunterCharacterMovs()
+    {
+        AnimateSlide();
+        AnimateAttackSlash();
+    }
 }

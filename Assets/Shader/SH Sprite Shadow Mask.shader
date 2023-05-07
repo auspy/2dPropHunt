@@ -29,11 +29,11 @@ Shader "Cainos/Sprite Shadow Mask"
 			//Work together with shader "SH Sprite Shadow"
 			//to make sure shadow only get drawn within objects with this shader
 			Stencil
-			{
-				Ref[_StencilRef]
-				Comp Always
-				Pass Replace
-			}
+{
+    Ref [_StencilRef]
+    Comp Always
+    Pass Replace
+}
 
 			Cull Off
 			Lighting Off

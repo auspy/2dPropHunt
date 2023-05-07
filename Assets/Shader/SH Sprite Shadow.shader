@@ -27,12 +27,12 @@ Shader "Cainos/Sprite Shadow"
 
 		//Use stencil to make sure shadow get only drawn once
 		//And only within object with shader "SH Sprite Shadow Mask"
-		Stencil
-		{
-			Ref [_StencilRef]
-			Comp Equal
-			Pass Zero
-		}
+	Stencil
+{
+    Ref [_StencilRef]
+    Comp Always
+    Pass Replace
+}
 
 		Cull Off
 		Lighting Off

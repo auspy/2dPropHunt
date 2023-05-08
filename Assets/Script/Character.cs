@@ -28,7 +28,6 @@ public class Character : NetworkBehaviour
     [HideInInspector]
     public Rigidbody2D rg;
 
-    [SyncVar]
     [HideInInspector]
     public float movX,
         movY;
@@ -44,7 +43,6 @@ public class Character : NetworkBehaviour
     public int currentAnimateState = 0;
 
     [HideInInspector]
-    [SyncVar]
     public bool isMoving,
         isJumping,
         isRunning,
@@ -87,7 +85,7 @@ public class Character : NetworkBehaviour
         CmdCharacterAnimations(currentAnimateState);
     }
 
-    [Command]
+    // [Command]
     public void cmdMoveCharacter()
     {
         if (!isLocalPlayer)
@@ -95,14 +93,11 @@ public class Character : NetworkBehaviour
         speed = walkSpeed;
         if (Input.GetKeyDown(KeyCode.C) && !isJumping)
         {
-            print("jumped");
-            rg.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
             isJumping = true;
         }
         else if (Input.GetKey(KeyCode.LeftShift))
         {
             isRunning = true;
-            speed = runSpeed;
         }
         else
         {
@@ -113,7 +108,7 @@ public class Character : NetworkBehaviour
         movX = Input.GetAxisRaw("Horizontal");
         movY = Input.GetAxisRaw("Vertical");
         rg.velocity = new Vector3(movX, movY, 0f) * speed;
-        RpcUpdateMovement(rg.position, rg.velocity);
+        RpcUpdateMovementServer(rg.position, rg.velocity);
     }
 
     public void AnimateMov()
@@ -143,9 +138,9 @@ public class Character : NetworkBehaviour
         {
             // moving
             isMoving = true;
-            // transform.localScale = dir;
             currentAnimateState = stateWalk;
-            RpcUpdateDirection(dir);
+            transform.localScale = dir;
+            RpcUpdateDirectionServer(dir);
         }
     }
 
@@ -161,6 +156,8 @@ public class Character : NetworkBehaviour
     {
         if (isJumping)
         {
+            print("jumped");
+            rg.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
             currentAnimateState = stateJump;
         }
     }
@@ -170,14 +167,16 @@ public class Character : NetworkBehaviour
         if (isRunning && isMoving)
         {
             print("running");
+            speed = runSpeed;
             currentAnimateState = stateRun;
         }
     }
 
-    [Command]
+    // [Command]
     public void CmdCharacterAnimations(int state)
     {
-        SetAnimation(state);
+        SetAnimationServer(state);
+        // CmdSetAnimation(state);
     }
 
     public void AnimateBasicCharacterMovs()
@@ -195,6 +194,12 @@ public class Character : NetworkBehaviour
             print(state + " currentAnimateState");
         animator.SetInteger("charState", state);
     }
+    [Command]
+    void SetAnimationServer(int state)
+    {
+        animator.SetInteger("charState", state);
+        SetAnimation(state);
+    }
 
     [ClientRpc]
     void RpcUpdateMovement(Vector3 position, Vector3 velocity)
@@ -203,10 +208,26 @@ public class Character : NetworkBehaviour
         transform.position = position;
         rg.velocity = velocity;
     }
+    [Command]
+    void RpcUpdateMovementServer(Vector3 position, Vector3 velocity)
+    {
+        // Update the position and velocity of the character on all clients
+        transform.position = position;
+        rg.velocity = velocity;
+         RpcUpdateMovement(position,velocity);
+    }
 
+    // TO SEND PLAYER DIRECTION TO SERVER THEN TO ALL CLIENTS
     [ClientRpc]
     public void RpcUpdateDirection(Vector3 dir)
     {
         transform.localScale = dir;
+    }
+
+    [Command]
+    public void RpcUpdateDirectionServer(Vector3 dir)
+    {
+        transform.localScale = dir;
+        RpcUpdateDirection(dir);
     }
 }

@@ -15270,7 +15270,7 @@ MonoBehaviour:
   sendRate: 30
   offlineScene: 
   onlineScene: Assets/Scene/SC Pixel Art Top Down - Basic.unity
-  transport: {fileID: 0}
+  transport: {fileID: 854267708}
   networkAddress: localhost
   maxConnections: 5
   authenticator: {fileID: 0}

@@ -5,9 +5,6 @@ using Mirror;
 
 public class Character : NetworkBehaviour
 {
-    // In the NetworkManager script:
-    public GameObject characterPrefab;
-
     [HideInInspector]
     public float speed;
     public float runSpeed,
@@ -166,7 +163,7 @@ public class Character : NetworkBehaviour
     {
         if (isRunning && isMoving)
         {
-            print("running");
+            // print("running");
             speed = runSpeed;
             currentAnimateState = stateRun;
         }
@@ -190,8 +187,8 @@ public class Character : NetworkBehaviour
     [ClientRpc]
     void SetAnimation(int state)
     {
-        if (state != 0)
-            print(state + " currentAnimateState");
+        // if (state != 0)
+        //     print(state + " currentAnimateState");
         animator.SetInteger("charState", state);
     }
     [Command]
@@ -230,4 +227,8 @@ public class Character : NetworkBehaviour
         transform.localScale = dir;
         RpcUpdateDirection(dir);
     }
+
+    // private void OnCollisionEnter2D(Collision2D other) {
+    //     print(gameObject.name + " is in coll with " + other.gameObject.name);   
+    // }
 }

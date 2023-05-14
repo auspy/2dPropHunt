@@ -5,13 +5,17 @@ using UnityEngine;
 public class Hunter : Character
 {
     // VARIABLES
+    public Transform attackPoint;
+    public float attackRange = 0.5f;
+    public LayerMask enemyLayers;
+    public int attackDamage = 40;
+    
     // movements
     bool isAttacking = false;
 
     // char animation states
     public const int stateAttackSlash = 6;
     public const int stateAttckKick = 7;
-
     // FUNCTIONS
     // public Hunter() { }
 
@@ -41,6 +45,13 @@ public class Hunter : Character
         {
             print("attacking");
             isAttacking = true;
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+
+            foreach (Collider2D enemy in hitEnemies)
+            {
+                // Debug.Log("We hit "+enemy.name);
+                enemy.GetComponent<enemy>().TakeDamage(attackDamage);
+            }
         }
         else if (Input.GetKeyDown(KeyCode.X) && isMoving && !isSliding)
         {
@@ -54,9 +65,15 @@ public class Hunter : Character
         {
             isAttacking = false;
         }
+
     }
 
-    // ANIMATIONS
+    void OnDrawGizmosSelected(){
+        if(attackPoint== null)
+            return;
+        Gizmos.DrawWireSphere(attackPoint.position,attackRange);
+    }
+
     void AnimateAttackSlash()
     {
         if (isAttacking)

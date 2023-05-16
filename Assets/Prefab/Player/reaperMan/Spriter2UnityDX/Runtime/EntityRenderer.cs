@@ -153,7 +153,9 @@ namespace Spriter2UnityDX
             // print(other is UnityEngine.CapsuleCollider2D);
             if (topY > gameObject.transform.position.y)
             {
-                int otherSortingOrder = other.gameObject.GetComponent<Renderer>().sortingOrder;
+                int otherSortingOrder = other.gameObject.GetComponent<Renderer>()
+                    ? other.gameObject.GetComponent<Renderer>().sortingOrder
+                    : sortingOrder;
                 SortingOrder = otherSortingOrder + 1;
                 // print("new SortingOrder " + SortingOrder);
             }
@@ -164,7 +166,9 @@ namespace Spriter2UnityDX
             if (Array.IndexOf(SkipTags, other.gameObject.tag) > -1)
                 return;
             // print(gameObject.name + " exited collision with " + other.gameObject.name);
-            int otherSortingOrder = other.gameObject.GetComponent<Renderer>().sortingOrder;
+            int otherSortingOrder = other.gameObject.GetComponent<Renderer>()
+                ? other.gameObject.GetComponent<Renderer>().sortingOrder
+                : sortingOrder;
             SortingOrder = otherSortingOrder;
             // print("new SortingOrder " + SortingOrder);
         }

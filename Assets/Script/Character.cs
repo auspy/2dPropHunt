@@ -5,6 +5,8 @@ using Mirror;
 
 public class Character : NetworkBehaviour
 {
+    public LayerMask[] playerLayers;
+
     [HideInInspector]
     public float speed;
     public float runSpeed,
@@ -37,8 +39,11 @@ public class Character : NetworkBehaviour
     public const int stateSlide = 4;
     public const int stateJump = 5;
 
+    // char animation states
+
     public int currentAnimateState = 0;
 
+    // movements
     [HideInInspector]
     public bool isMoving,
         isJumping,
@@ -61,25 +66,31 @@ public class Character : NetworkBehaviour
     //method to set the initial state of the Character on the client-side.
     public override void OnStartClient()
     {
+        // base.OnStartClient();
         localGameObject = NetworkClient.localPlayer?.gameObject;
         print("client started " + localGameObject?.name);
         animator = GetComponent<Animator>();
         rg = GetComponent<Rigidbody2D>();
     }
 
-    void Start()
+    protected virtual void Start()
     {
+        // TO IGNORE COLLISIONS BETWEEN BOTH GAME OBJECTS
+        Collider2D[] colliders = gameObject.GetComponents<Collider2D>();
+        Physics2D.IgnoreCollision(colliders[0], colliders[1]);
+
         animator = GetComponent<Animator>();
         rg = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (!isLocalPlayer)
             return;
         cmdMoveCharacter();
         CmdCharacterAnimations(currentAnimateState);
+        AnimateBasicCharacterMovs();
     }
 
     // [Command]
@@ -87,7 +98,6 @@ public class Character : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-        speed = walkSpeed;
         if (Input.GetKeyDown(KeyCode.C) && !isJumping)
         {
             isJumping = true;
@@ -96,8 +106,17 @@ public class Character : NetworkBehaviour
         {
             isRunning = true;
         }
+        else if (Input.GetKeyDown(KeyCode.X) && isMoving && !isSliding)
+        {
+            print("start sliding");
+            isSliding = true;
+            slideSecs = maxSlideSecs;
+            slideX = Input.GetAxisRaw("Horizontal");
+            slideY = Input.GetAxisRaw("Vertical");
+        }
         else
         {
+            speed = walkSpeed;
             isRunning = false;
             isJumping = false;
         }
@@ -169,6 +188,28 @@ public class Character : NetworkBehaviour
         }
     }
 
+    void AnimateSlide()
+    {
+        if (isSliding)
+        {
+            rg.velocity = new Vector2(slideX, slideY) * runSpeed;
+            // print(slideX);
+            // print(slideSecs);
+            // SetAnimation(stateSlide);
+            currentAnimateState = stateSlide;
+
+            // Decrement slide timer
+            slideSecs -= Time.deltaTime;
+
+            if (slideSecs <= 0.0f)
+            {
+                isSliding = false;
+                // Enable jumping and friction again
+                rg.velocity = new Vector2(0.0f, 0.0f);
+            }
+        }
+    }
+
     // [Command]
     public void CmdCharacterAnimations(int state)
     {
@@ -182,6 +223,7 @@ public class Character : NetworkBehaviour
         AnimateJump();
         AnimateMov();
         AnimateRun();
+        AnimateSlide();
     }
 
     [ClientRpc]
@@ -191,6 +233,7 @@ public class Character : NetworkBehaviour
         //     print(state + " currentAnimateState");
         animator.SetInteger("charState", state);
     }
+
     [Command]
     void SetAnimationServer(int state)
     {
@@ -205,13 +248,14 @@ public class Character : NetworkBehaviour
         transform.position = position;
         rg.velocity = velocity;
     }
+
     [Command]
     void RpcUpdateMovementServer(Vector3 position, Vector3 velocity)
     {
         // Update the position and velocity of the character on all clients
         transform.position = position;
         rg.velocity = velocity;
-         RpcUpdateMovement(position,velocity);
+        RpcUpdateMovement(position, velocity);
     }
 
     // TO SEND PLAYER DIRECTION TO SERVER THEN TO ALL CLIENTS
@@ -227,8 +271,4 @@ public class Character : NetworkBehaviour
         transform.localScale = dir;
         RpcUpdateDirection(dir);
     }
-
-    // private void OnCollisionEnter2D(Collision2D other) {
-    //     print(gameObject.name + " is in coll with " + other.gameObject.name);   
-    // }
 }

@@ -7,6 +7,8 @@ public class MyNetworkManager : NetworkManager
 {
     public GameObject serverPrefab;
     public GameObject clientPrefab;
+    public Transform[] spawnPoints;
+    // we are not including spawn points on layer 2 because layer triggers are added on stairs. to be able to add spawn points on upper layers we either need layer trigger on that location or manually adjust player layer. both are feasable but later.
 
     void onStart() { }
 
@@ -44,7 +46,15 @@ public class MyNetworkManager : NetworkManager
         GameObject playerPrefab = conn.connectionId == 0 ? serverPrefab : clientPrefab;
         if (playerPrefab != null)
         {
-            GameObject playerObject = Instantiate(playerPrefab);
+            // Get a random spawn point index
+            int randomIndex = Random.Range(0, spawnPoints.Length - 1);
+            Vector3 spawnPosition = Vector3.zero; // Set a default spawn position
+            if (conn.connectionId != 0 && spawnPoints[randomIndex] != null)
+            {
+                spawnPosition = spawnPoints[randomIndex].position; // Use the spawn point position
+            }
+            print("spawn location: " + spawnPosition);
+            GameObject playerObject = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
             // NetworkServer.Spawn(playerObject, conn);
             NetworkServer.AddPlayerForConnection(conn, playerObject);
             // Assign client authority to the player object

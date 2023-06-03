@@ -638,7 +638,8 @@ MonoBehaviour:
   isSliding: 0
   maxHealth: 100
   currentHealth: 0
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 849880730}
+  isHealthBarSmall: 0
 --- !u!4 &6941510124401151338 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4820803247068842, guid: 2d936ca8cfcf8d64ba06f3d8bd183c30,

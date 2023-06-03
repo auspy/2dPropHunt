@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using System;
 
 public class Character : NetworkBehaviour
 {
     public LayerMask[] playerLayers;
+    HealthBar healthBar;
 
     [HideInInspector]
     public float speed;
@@ -81,6 +81,8 @@ public class Character : NetworkBehaviour
 
         animator = GetComponent<Animator>();
         rg = GetComponent<Rigidbody2D>();
+
+        healthBar = GetComponentInChildren<HealthBar>();
     }
 
     // Update is called once per frame
@@ -262,6 +264,14 @@ public class Character : NetworkBehaviour
     [ClientRpc]
     public void RpcUpdateDirection(Vector3 dir)
     {
+        RectTransform healthBarRectTransform = healthBar?.GetComponent<RectTransform>();
+        if (healthBarRectTransform && dir.x < 0)
+        {
+            Vector3 vector = healthBarRectTransform.localScale;
+            vector.x = -vector.x;
+            healthBarRectTransform.localScale = vector;
+            // print(healthBarRectTransform.localScale);
+        }
         transform.localScale = dir;
     }
 

@@ -132,3 +132,12 @@ public class Hunter : Character
         AnimateAttackSlash();
     }
 }
+
+/*
+to cahgne health size for hunter
+if hunter
+get objects by tag player or add health to each player
+get health component
+change canvas size of each player
+make the health bar follow the player
+*/

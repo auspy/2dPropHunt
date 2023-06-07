@@ -624,6 +624,7 @@ MonoBehaviour:
   walkSpeed: 2.5
   jumpForce: 5
   maxSlideSecs: 0.5
+  playerScale: 0.2
   slideSecs: 0
   slideX: 0
   slideY: 0
@@ -637,6 +638,7 @@ MonoBehaviour:
   isRunning: 0
   isSliding: 0
   maxHealth: 100
+  objects: []
   currentHealth: 0
   healthBar: {fileID: 849880730}
   isHealthBarSmall: 0

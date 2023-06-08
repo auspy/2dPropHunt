@@ -99,7 +99,7 @@ public class Hunter : Character
 
             foreach (Collider2D enemy in hitEnemies)
             {
-                Debug.Log("We hit " + enemy.name + enemy.GetType());
+                // Debug.Log("We hit " + enemy.name + enemy.GetType());
                 if (Array.IndexOf(hitTags, enemy.gameObject.tag) == -1)
                 {
                     return;

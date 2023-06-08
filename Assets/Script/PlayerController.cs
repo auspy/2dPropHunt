@@ -1,4 +1,5 @@
 using UnityEngine.UI;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,16 @@ using Mirror;
 public class PlayerController : Character
 {
     public int maxHealth = 100;
-    public Sprite[] objects;
+
+    public List<Sprite> objects; // can transform to these objects
+
+    public void AddObject(Sprite sprite)
+    {
+        if (objects.Count < 3)
+            objects.Add(sprite);
+        else
+            print("already have 3 objects");
+    }
 
     // [SyncVar]
     public int currentHealth;
@@ -37,6 +47,8 @@ public class PlayerController : Character
         base.Start();
         currentHealth = maxHealth;
         healthBar.setMaxHealth(maxHealth);
+        if (isServer)
+            IsHealthBarSmall = true;
     }
 
     // Update is called once per frame
@@ -106,6 +118,14 @@ public class PlayerController : Character
     // end
 
     // TO TURN INTO OBJECT
+    //     [Command]
+    //     void CmdTurnIntoObject(){
+    // RpcTurnIntoObject();
+    //     }
+    //     [ClientRpc]
+    //     void RpcTurnIntoObject(){
+    //         TurnIntoObject();
+    //     }
     void TurnIntoObject()
     {
         BoxCollider2D boxy = gameObject.GetComponent<BoxCollider2D>();
@@ -115,6 +135,7 @@ public class PlayerController : Character
         SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         void OnKeyPress(Sprite sprite)
         {
+            print(objects);
             // set new sprite
             if (spriteRenderer == null)
                 spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
@@ -134,11 +155,23 @@ public class PlayerController : Character
             size.y = size.y / 2f;
             boxy.size = size;
             boxy.offset = new Vector2(0, size.y / 2f);
+            // change healthbar size
+            healthBar.transform.localScale /= 5;
         }
         // assign object sprite
-        if (Input.GetKeyDown(KeyCode.Alpha1) && objects[0])
+        if (
+            Input.GetKeyDown(KeyCode.Alpha1)
+            && objects != null
+            && objects.Count > 0
+            && objects[0] != null
+        )
             OnKeyPress(objects[0]);
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && objects[1])
+        else if (
+            Input.GetKeyDown(KeyCode.Alpha2)
+            && objects != null
+            && objects.Count > 1
+            && objects[1] != null
+        )
             OnKeyPress(objects[1]);
         else if (Input.GetKeyDown(KeyCode.R))
         {
@@ -151,6 +184,8 @@ public class PlayerController : Character
             boxy.offset = new Vector2(-0.12f, 0.4f);
             capy.size = new Vector2(4.345342f, 5.739083f);
             capy.offset = new Vector2(-0.2070716f, 2.863083f);
+            // change healthbar size
+            healthBar.transform.localScale *= 5;
         }
     }
 }

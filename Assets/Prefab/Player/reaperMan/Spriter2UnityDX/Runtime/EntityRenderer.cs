@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -159,6 +160,18 @@ namespace Spriter2UnityDX
                 SortingOrder = otherSortingOrder + 1;
                 // print("new SortingOrder " + SortingOrder);
             }
+            if (
+                other.gameObject.tag == "Transform"
+                && other.gameObject?.GetComponent<ObjectScript>()
+            )
+            {
+                // print("added" + other.gameObject.GetComponent<SpriteRenderer>().sprite);
+                // gameObject
+                //     .GetComponent<PlayerController>()
+                //     .objects.Add(other.gameObject.GetComponent<SpriteRenderer>().sprite, true);
+                print("transform allowed to: " + other.gameObject.name);
+                other.gameObject.GetComponent<ObjectScript>().allowTransform = gameObject.name;
+            }
         }
 
         private void OnTriggerExit2D(Collider2D other)
@@ -170,6 +183,21 @@ namespace Spriter2UnityDX
                 ? other.gameObject.GetComponent<Renderer>().sortingOrder
                 : sortingOrder;
             SortingOrder = otherSortingOrder;
+
+            if (
+                other.gameObject.tag == "Transform"
+                && other.gameObject?.GetComponent<ObjectScript>()
+            )
+            {
+                // Dictionary<Sprite, bool> temp = gameObject
+                //     .GetComponent<PlayerController>()
+                //     .objects;
+                // Sprite[] objs = temp.Keys.ToArray();
+                // Sprite sprite = other.gameObject.GetComponent<SpriteRenderer>().sprite;
+                // temp.Remove(sprite);
+                other.gameObject.GetComponent<ObjectScript>().allowTransform = null;
+            }
+
             // print("new SortingOrder " + SortingOrder);
         }
 
